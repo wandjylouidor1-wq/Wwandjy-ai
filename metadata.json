@@ -1,0 +1,6 @@
+{
+  "name": "Wandjy AI",
+  "description": "Wandjy is a smart, reactive AI Companion powered by Gemini.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
