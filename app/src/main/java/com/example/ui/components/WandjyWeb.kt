@@ -67,7 +67,8 @@ fun WandjyWeb(
     var isGeneratingWeb by remember { mutableStateOf(false) }
 
     var generatedCode by remember { mutableStateOf("") }
-    var activePreviewTab by remember { mutableStateOf("browser") } // "browser" or "code"
+    var generatedAppCode by remember { mutableStateOf("") }
+    var activePreviewTab by remember { mutableStateOf("browser") } // "browser", "app_live", "code", "compose_code"
 
     // Publishing Animation States
     var isPublishingWeb by remember { mutableStateOf(false) }
@@ -250,7 +251,7 @@ fun WandjyWeb(
 
                             Spacer(modifier = Modifier.height(12.dp))
 
-                            // Generate Web Button
+                            // Generate Web & App Button
                             Button(
                                 onClick = {
                                     if (webName.isBlank() || webDesc.isBlank()) {
@@ -259,24 +260,49 @@ fun WandjyWeb(
                                     }
                                     scope.launch {
                                         isGeneratingWeb = true
-                                        val sysInstruction = """
+                                        val sysInstructionWeb = """
                                             You are Wandjy AI Website Compiler & UI Architect.
                                             Compile responsive, complete, beautiful HTML5 and CSS3 code. Use Google Fonts (e.g. Syne, Space Grotesk) and inline responsive Tailwind configurations.
                                             Output ONLY clean raw HTML block starting with <!DOCTYPE html> and closing with </html>.
                                             Do not write explanations, side notes, or conversational text.
                                         """.trimIndent()
 
-                                        val response = viewModel.generateWithAI(
-                                            prompt = "Create a gorgeous HTML/CSS webpage titled '$webName' for a '$webCategory' styled in '$webTheme' theme. Layout details: $webDesc",
-                                            systemInstruction = sysInstruction
-                                        )
+                                        val sysInstructionApp = """
+                                            You are Wandjy AI Mobile App Compiler & Jetpack Compose Architect.
+                                            Compile a complete, modern, gorgeous Kotlin Jetpack Compose screen. Provide rich styling, beautiful Material 3 cards, state hooks, and edge-to-edge support.
+                                            Output ONLY clean, raw Kotlin Jetpack Compose code starting with // Kotlin App Code.
+                                            Do not write explanations, markdown blocks, or conversational text. Use elegant Material 3 icons and theme colors.
+                                        """.trimIndent()
+
+                                        val webJob = launch {
+                                            val response = viewModel.generateWithAI(
+                                                prompt = "Create a gorgeous HTML/CSS webpage titled '$webName' for a '$webCategory' styled in '$webTheme' theme. Layout details: $webDesc",
+                                                systemInstruction = sysInstructionWeb
+                                            )
+                                            if (!response.startsWith("Error:")) {
+                                                generatedCode = response
+                                            } else {
+                                                generatedCode = "<!-- Failed to generate website -->"
+                                            }
+                                        }
+
+                                        val appJob = launch {
+                                            val response = viewModel.generateWithAI(
+                                                prompt = "Create a gorgeous Kotlin Jetpack Compose mobile screen titled '$webName' for a '$webCategory' app styled in '$webTheme' theme. Layout details: $webDesc",
+                                                systemInstruction = sysInstructionApp
+                                            )
+                                            if (!response.startsWith("Error:")) {
+                                                generatedAppCode = response
+                                            } else {
+                                                generatedAppCode = "// Failed to generate mobile app code"
+                                            }
+                                        }
+
+                                        webJob.join()
+                                        appJob.join()
 
                                         isGeneratingWeb = false
-                                        if (!response.startsWith("Error:")) {
-                                            generatedCode = response
-                                        } else {
-                                            Toast.makeText(context, "Code compilation failed: $response", Toast.LENGTH_LONG).show()
-                                        }
+                                        Toast.makeText(context, "Successfully compiled BOTH Web & App bundles!", Toast.LENGTH_SHORT).show()
                                     }
                                 },
                                 colors = ButtonDefaults.buttonColors(containerColor = glowColor),
@@ -288,11 +314,11 @@ fun WandjyWeb(
                                 if (isGeneratingWeb) {
                                     CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.Black, strokeWidth = 2.dp)
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Compiling Web Layout...", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                    Text("Compiling Web & App...", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                 } else {
-                                    Icon(Icons.Default.Code, contentDescription = null, tint = Color.Black)
+                                    Icon(Icons.Default.Cloud, contentDescription = null, tint = Color.Black)
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Generate HTML/CSS Website", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                    Text("Generate Website & Mobile App", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                 }
                             }
                         }
@@ -324,205 +350,424 @@ fun WandjyWeb(
                                     )
 
                                     Row(
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(2.dp),
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(8.dp))
                                             .background(CosmicSurfaceVariant)
                                             .padding(2.dp)
                                     ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .clip(RoundedCornerShape(6.dp))
-                                                .background(if (activePreviewTab == "browser") glowColor else Color.Transparent)
-                                                .clickable { activePreviewTab = "browser" }
-                                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                                        ) {
-                                            Text("Live View", color = if (activePreviewTab == "browser") Color.Black else Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                                        }
-                                        Box(
-                                            modifier = Modifier
-                                                .clip(RoundedCornerShape(6.dp))
-                                                .background(if (activePreviewTab == "code") glowColor else Color.Transparent)
-                                                .clickable { activePreviewTab = "code" }
-                                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                                        ) {
-                                            Text("HTML Code", color = if (activePreviewTab == "code") Color.Black else Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                        listOf(
+                                            "browser" to "💻 Web",
+                                            "app_live" to "📱 App",
+                                            "code" to "📄 HTML",
+                                            "compose_code" to "📦 Compose"
+                                        ).forEach { (tabId, label) ->
+                                            Box(
+                                                modifier = Modifier
+                                                    .clip(RoundedCornerShape(6.dp))
+                                                    .background(if (activePreviewTab == tabId) glowColor else Color.Transparent)
+                                                    .clickable { activePreviewTab = tabId }
+                                                    .padding(horizontal = 6.dp, vertical = 4.dp)
+                                            ) {
+                                                Text(
+                                                    text = label,
+                                                    color = if (activePreviewTab == tabId) Color.Black else Color.White,
+                                                    fontSize = 9.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
                                         }
                                     }
                                 }
 
                                 Spacer(modifier = Modifier.height(12.dp))
 
-                                if (activePreviewTab == "code") {
-                                    // Code render box
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(280.dp)
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .background(Color(0xFF0F0E17))
-                                            .border(1.dp, CosmicSurfaceVariant, RoundedCornerShape(8.dp))
-                                            .padding(10.dp)
-                                    ) {
-                                        LazyColumn(modifier = Modifier.fillMaxSize()) {
-                                            item {
-                                                Text(
-                                                    text = generatedCode,
-                                                    color = NeonTeal,
-                                                    fontSize = 11.sp,
-                                                    fontFamily = FontFamily.Monospace,
-                                                    lineHeight = 16.sp
-                                                )
+                                when (activePreviewTab) {
+                                    "code" -> {
+                                        // Code render box for HTML
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(300.dp)
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .background(Color(0xFF0F0E17))
+                                                .border(1.dp, CosmicSurfaceVariant, RoundedCornerShape(8.dp))
+                                                .padding(10.dp)
+                                        ) {
+                                            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                                item {
+                                                    Text(
+                                                        text = generatedCode,
+                                                        color = NeonTeal,
+                                                        fontSize = 11.sp,
+                                                        fontFamily = FontFamily.Monospace,
+                                                        lineHeight = 16.sp
+                                                    )
+                                                }
                                             }
                                         }
                                     }
-                                } else {
-                                    // RESPONSIVE BROWSER SIMULATOR
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(300.dp)
-                                            .clip(RoundedCornerShape(12.dp))
-                                            .background(Color.White)
-                                            .border(2.dp, CosmicSurfaceVariant, RoundedCornerShape(12.dp))
-                                    ) {
-                                        Column(modifier = Modifier.fillMaxSize()) {
-                                            // Mock Browser address bar
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .background(Color(0xFFE2E8F0))
-                                                    .padding(horizontal = 10.dp, vertical = 6.dp),
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color.Red))
-                                                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color.Yellow))
-                                                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color.Green))
-                                                }
-                                                Spacer(modifier = Modifier.width(12.dp))
-                                                Box(
-                                                    modifier = Modifier
-                                                        .weight(1f)
-                                                        .height(20.dp)
-                                                        .clip(RoundedCornerShape(4.dp))
-                                                        .background(Color.White)
-                                                        .padding(horizontal = 8.dp),
-                                                    contentAlignment = Alignment.CenterStart
-                                                ) {
+                                    "compose_code" -> {
+                                        // Code render box for Jetpack Compose
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(300.dp)
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .background(Color(0xFF0F0E17))
+                                                .border(1.dp, CosmicSurfaceVariant, RoundedCornerShape(8.dp))
+                                                .padding(10.dp)
+                                        ) {
+                                            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                                item {
                                                     Text(
-                                                        text = "https://www.${webName.lowercase().replace(" ", "")}.com",
-                                                        color = Color.Gray,
-                                                        fontSize = 10.sp
+                                                        text = generatedAppCode,
+                                                        color = NeonCyan,
+                                                        fontSize = 11.sp,
+                                                        fontFamily = FontFamily.Monospace,
+                                                        lineHeight = 16.sp
                                                     )
                                                 }
-                                                Spacer(modifier = Modifier.width(6.dp))
-                                                Icon(Icons.Default.Refresh, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(12.dp))
                                             }
-
-                                            // Rendered Layout Simulation
-                                            Column(
+                                        }
+                                    }
+                                    "app_live" -> {
+                                        // Simulated Smartphone Preview
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 4.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Box(
                                                 modifier = Modifier
-                                                    .weight(1f)
-                                                    .fillMaxWidth()
-                                                    .background(Color(0xFF0F0E17)) // Match simulated responsive dark core
-                                                    .padding(14.dp)
+                                                    .width(240.dp)
+                                                    .height(420.dp)
+                                                    .clip(RoundedCornerShape(28.dp))
+                                                    .background(Color(0xFF0F0E17))
+                                                    .border(4.dp, Color(0xFF2E2B4E), RoundedCornerShape(28.dp))
                                             ) {
-                                                // Header Row
-                                                Row(
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                                    verticalAlignment = Alignment.CenterVertically
-                                                ) {
-                                                    Text(text = webName, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                        Text("Home", color = NeonTeal, fontSize = 8.sp, fontWeight = FontWeight.Bold)
-                                                        Text("Services", color = Color.LightGray, fontSize = 8.sp)
-                                                        Text("Pricing", color = Color.LightGray, fontSize = 8.sp)
-                                                    }
-                                                }
-
-                                                Spacer(modifier = Modifier.height(14.dp))
-
-                                                // Hero Section
-                                                Box(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .clip(RoundedCornerShape(8.dp))
-                                                        .background(
-                                                            Brush.verticalGradient(
-                                                                colors = listOf(
-                                                                    Color(0xFF331B6B),
-                                                                    Color(0xFF150A2F)
-                                                                )
-                                                            )
-                                                        )
-                                                        .padding(12.dp),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                        Text(
-                                                            text = "Welcome to $webName",
-                                                            color = Color.White,
-                                                            fontSize = 12.sp,
-                                                            fontWeight = FontWeight.Bold,
-                                                            textAlign = TextAlign.Center
-                                                        )
-                                                        Text(
-                                                            text = webDesc.take(65) + "...",
-                                                            color = Color.LightGray,
-                                                            fontSize = 9.sp,
-                                                            textAlign = TextAlign.Center,
-                                                            modifier = Modifier.padding(vertical = 4.dp)
-                                                        )
+                                                Column(modifier = Modifier.fillMaxSize()) {
+                                                    // Notch
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(top = 6.dp),
+                                                        horizontalArrangement = Arrangement.Center
+                                                    ) {
                                                         Box(
                                                             modifier = Modifier
-                                                                .clip(RoundedCornerShape(4.dp))
-                                                                .background(NeonTeal)
-                                                                .clickable {
-                                                                    Toast.makeText(context, "Call to action triggered!", Toast.LENGTH_SHORT).show()
-                                                                }
-                                                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                                                        ) {
-                                                            Text("Explore Products", color = Color.Black, fontSize = 8.sp, fontWeight = FontWeight.Bold)
-                                                        }
+                                                                .width(60.dp)
+                                                                .height(12.dp)
+                                                                .clip(RoundedCornerShape(6.dp))
+                                                                .background(Color.Black)
+                                                        )
                                                     }
-                                                }
 
-                                                Spacer(modifier = Modifier.height(12.dp))
+                                                    // Status bar
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(horizontal = 14.dp, vertical = 4.dp),
+                                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Text("Wandjy Mobile", color = Color.Gray, fontSize = 7.sp, fontWeight = FontWeight.Bold)
+                                                        Text("5G • 🔋 100% • 12:00 PM", color = Color.Gray, fontSize = 7.sp, fontWeight = FontWeight.Bold)
+                                                    }
 
-                                                // Sample feature grid
-                                                Row(
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                                ) {
-                                                    repeat(2) { index ->
-                                                        Card(
-                                                            colors = CardDefaults.cardColors(containerColor = Color(0xFF1B192A)),
+                                                    Spacer(modifier = Modifier.height(4.dp))
+
+                                                    // App screen body
+                                                    Column(
+                                                        modifier = Modifier
+                                                            .weight(1f)
+                                                            .fillMaxWidth()
+                                                            .padding(horizontal = 10.dp)
+                                                    ) {
+                                                        // Top Bar
+                                                        Row(
                                                             modifier = Modifier
-                                                                .weight(1f)
-                                                                .border(1.dp, Color(0xFF2E2B4E), RoundedCornerShape(6.dp))
+                                                                .fillMaxWidth()
+                                                                .clip(RoundedCornerShape(6.dp))
+                                                                .background(glowColor.copy(alpha = 0.15f))
+                                                                .padding(6.dp),
+                                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                                            verticalAlignment = Alignment.CenterVertically
                                                         ) {
-                                                            Column(modifier = Modifier.padding(6.dp)) {
-                                                                Icon(
-                                                                    imageVector = if (index == 0) Icons.Default.Bolt else Icons.Default.Shield,
-                                                                    contentDescription = null,
-                                                                    tint = NeonTeal,
-                                                                    modifier = Modifier.size(14.dp)
+                                                            Icon(Icons.Default.Menu, contentDescription = null, tint = glowColor, modifier = Modifier.size(12.dp))
+                                                            Text(text = webName, color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                                            Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = glowColor, modifier = Modifier.size(12.dp))
+                                                        }
+
+                                                        Spacer(modifier = Modifier.height(10.dp))
+
+                                                        // Hero Card
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .height(95.dp)
+                                                                .clip(RoundedCornerShape(8.dp))
+                                                                .background(
+                                                                    Brush.verticalGradient(
+                                                                        colors = listOf(
+                                                                            Color(0xFF2D124D),
+                                                                            Color(0xFF100522)
+                                                                        )
+                                                                    )
                                                                 )
-                                                                Spacer(modifier = Modifier.height(4.dp))
+                                                                .border(1.dp, glowColor.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                                                                .padding(8.dp),
+                                                            contentAlignment = Alignment.Center
+                                                        ) {
+                                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                                                 Text(
-                                                                    text = if (index == 0) "Fast Integration" else "Secure Protocols",
+                                                                    text = "$webName Native App",
                                                                     color = Color.White,
-                                                                    fontSize = 8.sp,
+                                                                    fontSize = 11.sp,
                                                                     fontWeight = FontWeight.Bold
                                                                 )
                                                                 Text(
-                                                                    text = "Highly customized and optimized for multiple viewports.",
+                                                                    text = "Category: $webCategory",
+                                                                    color = NeonCyan,
+                                                                    fontSize = 7.sp,
+                                                                    fontWeight = FontWeight.Bold
+                                                                )
+                                                                Spacer(modifier = Modifier.height(4.dp))
+                                                                Text(
+                                                                    text = webDesc.take(45) + "...",
                                                                     color = Color.LightGray,
                                                                     fontSize = 7.sp,
+                                                                    textAlign = TextAlign.Center,
                                                                     lineHeight = 10.sp
                                                                 )
+                                                            }
+                                                        }
+
+                                                        Spacer(modifier = Modifier.height(10.dp))
+
+                                                        Text("EXPLORE NATIVE SERVICES:", color = Color.Gray, fontSize = 7.sp, fontWeight = FontWeight.Bold)
+                                                        Spacer(modifier = Modifier.height(4.dp))
+
+                                                        Row(
+                                                            modifier = Modifier.fillMaxWidth(),
+                                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                                        ) {
+                                                            listOf(
+                                                                "Fast Load" to Icons.Default.Bolt,
+                                                                "Security" to Icons.Default.CheckCircle,
+                                                                "Support" to Icons.Default.Email
+                                                            ).forEach { (feat, icon) ->
+                                                                Card(
+                                                                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1B192A)),
+                                                                    modifier = Modifier
+                                                                        .weight(1f)
+                                                                        .height(62.dp)
+                                                                        .border(1.dp, Color(0xFF2E2B4E), RoundedCornerShape(6.dp))
+                                                                ) {
+                                                                    Column(
+                                                                        modifier = Modifier.padding(4.dp),
+                                                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                                                        verticalArrangement = Arrangement.Center
+                                                                    ) {
+                                                                        Icon(
+                                                                            imageVector = icon,
+                                                                            contentDescription = null,
+                                                                            tint = glowColor,
+                                                                            modifier = Modifier.size(12.dp)
+                                                                        )
+                                                                        Spacer(modifier = Modifier.height(2.dp))
+                                                                        Text(text = feat, color = Color.White, fontSize = 7.sp, fontWeight = FontWeight.Bold)
+                                                                        Text(text = "Enabled", color = Color.Gray, fontSize = 5.sp)
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+
+                                                        Spacer(modifier = Modifier.height(12.dp))
+
+                                                        Button(
+                                                            onClick = {
+                                                                Toast.makeText(context, "Native Android App Action Triggered!", Toast.LENGTH_SHORT).show()
+                                                            },
+                                                            colors = ButtonDefaults.buttonColors(containerColor = glowColor),
+                                                            modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .height(26.dp),
+                                                            contentPadding = PaddingValues(0.dp)
+                                                        ) {
+                                                            Text("Launch Android Application", color = Color.Black, fontSize = 7.sp, fontWeight = FontWeight.Bold)
+                                                        }
+                                                    }
+
+                                                    // Gesture indicator
+                                                    Spacer(modifier = Modifier.height(6.dp))
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(bottom = 8.dp),
+                                                        horizontalArrangement = Arrangement.Center
+                                                    ) {
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .width(70.dp)
+                                                                .height(3.dp)
+                                                                .clip(RoundedCornerShape(2.dp))
+                                                                .background(Color.Gray)
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else -> {
+                                        // RESPONSIVE BROWSER SIMULATOR
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(300.dp)
+                                                .clip(RoundedCornerShape(12.dp))
+                                                .background(Color.White)
+                                                .border(2.dp, CosmicSurfaceVariant, RoundedCornerShape(12.dp))
+                                        ) {
+                                            Column(modifier = Modifier.fillMaxSize()) {
+                                                // Mock Browser address bar
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .background(Color(0xFFE2E8F0))
+                                                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                                        Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color.Red))
+                                                        Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color.Yellow))
+                                                        Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color.Green))
+                                                    }
+                                                    Spacer(modifier = Modifier.width(12.dp))
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .weight(1f)
+                                                            .height(20.dp)
+                                                            .clip(RoundedCornerShape(4.dp))
+                                                            .background(Color.White)
+                                                            .padding(horizontal = 8.dp),
+                                                        contentAlignment = Alignment.CenterStart
+                                                    ) {
+                                                        Text(
+                                                            text = "https://www.${webName.lowercase().replace(" ", "")}.com",
+                                                            color = Color.Gray,
+                                                            fontSize = 10.sp
+                                                        )
+                                                    }
+                                                    Spacer(modifier = Modifier.width(6.dp))
+                                                    Icon(Icons.Default.Refresh, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(12.dp))
+                                                }
+
+                                                // Rendered Layout Simulation
+                                                Column(
+                                                    modifier = Modifier
+                                                        .weight(1f)
+                                                        .fillMaxWidth()
+                                                        .background(Color(0xFF0F0E17)) // Match simulated responsive dark core
+                                                        .padding(14.dp)
+                                                ) {
+                                                    // Header Row
+                                                    Row(
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Text(text = webName, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                            Text("Home", color = NeonTeal, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                                                            Text("Services", color = Color.LightGray, fontSize = 8.sp)
+                                                            Text("Pricing", color = Color.LightGray, fontSize = 8.sp)
+                                                        }
+                                                    }
+
+                                                    Spacer(modifier = Modifier.height(14.dp))
+
+                                                    // Hero Section
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .clip(RoundedCornerShape(8.dp))
+                                                            .background(
+                                                                Brush.verticalGradient(
+                                                                    colors = listOf(
+                                                                        Color(0xFF331B6B),
+                                                                        Color(0xFF150A2F)
+                                                                    )
+                                                                )
+                                                            )
+                                                            .padding(12.dp),
+                                                        contentAlignment = Alignment.Center
+                                                    ) {
+                                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                            Text(
+                                                                text = "Welcome to $webName",
+                                                                color = Color.White,
+                                                                fontSize = 12.sp,
+                                                                fontWeight = FontWeight.Bold,
+                                                                textAlign = TextAlign.Center
+                                                            )
+                                                            Text(
+                                                                text = webDesc.take(65) + "...",
+                                                                color = Color.LightGray,
+                                                                fontSize = 9.sp,
+                                                                textAlign = TextAlign.Center,
+                                                                modifier = Modifier.padding(vertical = 4.dp)
+                                                            )
+                                                            Box(
+                                                                modifier = Modifier
+                                                                    .clip(RoundedCornerShape(4.dp))
+                                                                    .background(NeonTeal)
+                                                                    .clickable {
+                                                                        Toast.makeText(context, "Call to action triggered!", Toast.LENGTH_SHORT).show()
+                                                                    }
+                                                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                                                            ) {
+                                                                Text("Explore Products", color = Color.Black, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                                                            }
+                                                        }
+                                                    }
+
+                                                    Spacer(modifier = Modifier.height(12.dp))
+
+                                                    // Sample feature grid
+                                                    Row(
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                    ) {
+                                                        repeat(2) { index ->
+                                                            Card(
+                                                                colors = CardDefaults.cardColors(containerColor = Color(0xFF1B192A)),
+                                                                modifier = Modifier
+                                                                    .weight(1f)
+                                                                    .border(1.dp, Color(0xFF2E2B4E), RoundedCornerShape(6.dp))
+                                                            ) {
+                                                                Column(modifier = Modifier.padding(6.dp)) {
+                                                                    Icon(
+                                                                        imageVector = if (index == 0) Icons.Default.Bolt else Icons.Default.Shield,
+                                                                        contentDescription = null,
+                                                                        tint = NeonTeal,
+                                                                        modifier = Modifier.size(14.dp)
+                                                                    )
+                                                                    Spacer(modifier = Modifier.height(4.dp))
+                                                                    Text(
+                                                                        text = if (index == 0) "Fast Integration" else "Secure Protocols",
+                                                                        color = Color.White,
+                                                                        fontSize = 8.sp,
+                                                                        fontWeight = FontWeight.Bold
+                                                                    )
+                                                                    Text(
+                                                                        text = "Highly customized and optimized for multiple viewports.",
+                                                                        color = Color.LightGray,
+                                                                        fontSize = 7.sp,
+                                                                        lineHeight = 10.sp
+                                                                    )
+                                                                }
                                                             }
                                                         }
                                                     }
@@ -530,6 +775,7 @@ fun WandjyWeb(
                                             }
                                         }
                                     }
+                                }
 
                                     // Interactive Free Publishing Section
                                     Spacer(modifier = Modifier.height(14.dp))
@@ -624,7 +870,6 @@ fun WandjyWeb(
                                             )
                                         }
                                     }
-                                }
                             }
                         }
                     }
