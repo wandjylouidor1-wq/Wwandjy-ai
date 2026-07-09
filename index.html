@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wandjy // AI Multi-Agent Edge Playground</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons for Beautiful Accent Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Core Web App Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Core Web App JavaScript Logic -->
+  <script src="app.js" defer></script>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500/30 selection:text-white">
+
+  <!-- ==========================================
+       BROWSER SHELL CONTAINER
+       ========================================== -->
+  <div class="flex-1 flex flex-col">
+    
+    <!-- TOP ADDRESS BAR (Wandjy Browser Shell) -->
+    <header class="w-full glass-panel border-b border-white/5 bg-[#0e101f]/90 sticky top-0 z-40 backdrop-blur-md">
+      <!-- Window Title and Mac dots -->
+      <div class="max-w-[1400px] mx-auto px-4 py-2 flex items-center justify-between">
+        
+        <!-- Mac Window Dots -->
+        <div class="flex items-center gap-1.5 w-1/4">
+          <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block cursor-pointer" onclick="alert('System Core is locked to prevent downtime.')"></span>
+          <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block cursor-pointer" onclick="alert('Minimizing sandbox viewport.')"></span>
+          <span class="w-3 h-3 rounded-full bg-green-500/80 inline-block cursor-pointer" onclick="document.documentElement.requestFullscreen()"></span>
+        </div>
+
+        <!-- SSL Secured Virtual Address Bar -->
+        <div class="w-2/4 flex items-center bg-[#090a12]/80 border border-white/5 px-3 py-1 rounded-lg text-xs gap-2 select-none">
+          <i class="fas fa-lock text-emerald-400 text-[10px]"></i>
+          <input type="text" id="browser-address" class="bg-transparent text-slate-300 w-full focus:outline-none font-mono text-[11px]" value="https://www.wandjy.sh/" readonly>
+          <button onclick="navigator.clipboard.writeText(document.getElementById('browser-address').value); alert('Copied secure URL to clipboard!')" class="text-slate-500 hover:text-white transition-colors">
+            <i class="far fa-copy text-[10px]"></i>
+          </button>
+        </div>
+
+        <!-- Connection latency telemetry status -->
+        <div class="w-1/4 flex items-center justify-end gap-3 font-mono text-[10px] text-slate-400">
+          <div class="flex items-center gap-2">
+            <span id="secure-glow-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span class="hidden md:inline">SSL SECURED NODE</span>
+          </div>
+          <button id="cloud-console-btn" class="px-2.5 py-1 rounded-md bg-white/5 border border-white/10 hover:border-[var(--active-glow)] text-xs text-slate-300 hover:text-white transition-all">
+            <i class="fas fa-cloud-upload-alt text-[10px] mr-1.5 text-[var(--active-glow)]"></i> Cloud Console
+          </button>
+        </div>
+
+      </div>
+
+      <!-- BOTTOM NAVIGATION BAR (Website Navbar) -->
+      <div class="border-t border-white/5 bg-[#0a0c16]/75">
+        <div class="max-w-[1400px] mx-auto px-4 py-2 flex flex-col md:flex-row items-center justify-between gap-3">
+          
+          <!-- Logo & Brand Header -->
+          <div class="flex items-center gap-2 cursor-pointer tab-btn" data-tab="home">
+            <h1 class="text-lg font-black tracking-tighter text-white font-display uppercase">Wandjy<span class="text-[var(--active-glow)] font-normal font-sans text-xs ml-1 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded-md">AI Suite</span></h1>
+          </div>
+
+          <!-- Browser Control Button Shell -->
+          <div class="flex items-center gap-1.5 bg-white/5 p-1 rounded-lg">
+            <button id="browser-btn-back" class="p-1.5 rounded text-slate-400 hover:text-white hover:bg-white/5 transition-all text-xs" title="Back to Home"><i class="fas fa-arrow-left"></i></button>
+            <button id="browser-btn-refresh" class="p-1.5 rounded text-slate-400 hover:text-white hover:bg-white/5 transition-all text-xs" title="Refresh Node"><i id="browser-btn-refresh-icon" class="fas fa-redo-alt"></i></button>
+          </div>
+
+          <!-- Responsive Navigation Pills -->
+          <nav class="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 md:pb-0">
+            <button class="tab-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all flex items-center gap-1.5" data-tab="home">
+              <i class="fas fa-house-user text-[10px]"></i> Home
+            </button>
+            <button class="tab-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all flex items-center gap-1.5" data-tab="chat">
+              <i class="far fa-comment-alt text-[10px]"></i> Chat Portal
+            </button>
+            <button class="tab-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all flex items-center gap-1.5" data-tab="web">
+              <i class="fas fa-code text-[10px]"></i> Web Builder
+            </button>
+            <button class="tab-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all flex items-center gap-1.5" data-tab="beats">
+              <i class="fas fa-headphones text-[10px]"></i> Beats Studio
+            </button>
+            <button class="tab-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all flex items-center gap-1.5" data-tab="studio">
+              <i class="fas fa-paint-brush text-[10px]"></i> Art Studio
+            </button>
+            <button class="tab-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all flex items-center gap-1.5" data-tab="study">
+              <i class="fas fa-graduation-cap text-[10px]"></i> Tutor Hub
+            </button>
+            <button class="tab-btn px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all flex items-center gap-1.5" data-tab="starred">
+              <i class="far fa-star text-[10px]"></i> Saved Answers
+            </button>
+          </nav>
+
+        </div>
+      </div>
+    </header>
+
+
+    <!-- ==========================================
+         VIEWPORTS LAYOUT (Dynamic Tab Routing)
+         ========================================== -->
+    <main class="flex-1 max-w-[1400px] w-full mx-auto p-4 md:p-6">
+      
+      <!-- TAB 1: HOME PORTAL AND SUITE EXPLORER -->
+      <section id="view-home" class="view-tab space-y-8">
+        
+        <!-- Cybernetic Hero Section -->
+        <div class="glass-panel rounded-3xl p-8 md:p-12 border border-white/5 relative overflow-hidden flex flex-col md:flex-row items-center gap-8 shadow-2xl">
+          <!-- Background Gradient -->
+          <div class="absolute inset-0 bg-gradient-to-tr from-[var(--active-glow)]/5 via-transparent to-transparent pointer-events-none"></div>
+          
+          <div class="flex-1 space-y-4 relative z-10">
+            <div class="inline-flex items-center gap-2 bg-[#1a1d2e] px-3 py-1 rounded-full border border-white/5 text-[10px] text-[var(--active-glow)] font-mono tracking-wider uppercase">
+              <span class="w-1.5 h-1.5 rounded-full bg-[var(--active-glow)] animate-ping"></span> Edge Router Active
+            </div>
+            <h2 class="text-3xl md:text-5xl font-black tracking-tight text-white font-display">WANDJY EDGE PLAYGROUND</h2>
+            <p class="text-sm md:text-base text-slate-400 leading-relaxed max-w-xl">
+              Compile, compose, synthesize, and sketch within an integrated multi-agent digital ecosystem. Real-time client-side engines powered by cutting-edge browser technologies.
+            </p>
+            <div class="pt-2 flex items-center gap-3">
+              <button class="tab-btn px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white font-bold text-xs uppercase tracking-wider transition-all hover-glow" data-tab="chat">
+                Initiate Chat Portal
+              </button>
+              <button class="tab-btn px-5 py-2.5 rounded-xl border border-white/10 hover:border-white/20 text-slate-300 text-xs font-bold uppercase tracking-wider transition-all" data-tab="web">
+                Explore Web Builder
+              </button>
+            </div>
+          </div>
+
+          <!-- Telemetry Wave Monitor Canvas -->
+          <div class="w-full md:w-[400px] h-[180px] glass-panel bg-black/40 border border-white/5 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden">
+            <div class="flex items-center justify-between text-[10px] text-slate-500 font-mono">
+              <span>WANDJY ROUTER TELEMETRY</span>
+              <span class="text-emerald-400">ACTIVE // 14ms PING</span>
+            </div>
+            <canvas id="canvas-telemetry" class="w-full h-[110px]"></canvas>
+            <div class="text-[9px] text-slate-500 font-mono text-center">CONTINUOUS SINE-WAVE FREQUENCY DEEP GRID LOOP</div>
+          </div>
+        </div>
+
+        <!-- 3D Grid Suite Explorer Cards -->
+        <div class="space-y-4">
+          <h3 class="text-xs font-bold text-slate-500 font-mono tracking-widest uppercase">Select Module Channel</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Card 1: Chat -->
+            <div class="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col justify-between h-[180px] hover-glow cursor-pointer tab-btn" data-tab="chat">
+              <div class="space-y-2">
+                <div class="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-400/20 flex items-center justify-center text-cyan-400 text-xs"><i class="far fa-comments"></i></div>
+                <h4 class="text-base font-bold font-orbitron text-white">AI Chat Portal</h4>
+                <p class="text-xs text-slate-400 font-display">Deep conversational streams with customizable AI companion personas.</p>
+              </div>
+              <span class="text-[10px] text-cyan-400 font-mono font-bold tracking-wider">Channel 01 <i class="fas fa-chevron-right ml-1"></i></span>
+            </div>
+
+            <!-- Card 2: Web Builder -->
+            <div class="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col justify-between h-[180px] hover-glow cursor-pointer tab-btn" data-tab="web">
+              <div class="space-y-2">
+                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center text-emerald-400 text-xs"><i class="fas fa-code"></i></div>
+                <h4 class="text-base font-bold font-orbitron text-white">Edge Web Builder</h4>
+                <p class="text-xs text-slate-400 font-display">HTML/CSS split-screen source sandbox with immediate preview.</p>
+              </div>
+              <span class="text-[10px] text-emerald-400 font-mono font-bold tracking-wider">Channel 02 <i class="fas fa-chevron-right ml-1"></i></span>
+            </div>
+
+            <!-- Card 3: Beats Synth -->
+            <div class="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col justify-between h-[180px] hover-glow cursor-pointer tab-btn" data-tab="beats">
+              <div class="space-y-2">
+                <div class="w-8 h-8 rounded-lg bg-pink-500/10 border border-pink-400/20 flex items-center justify-center text-pink-400 text-xs"><i class="fas fa-music"></i></div>
+                <h4 class="text-base font-bold font-orbitron text-white">Beats & Synth</h4>
+                <p class="text-xs text-slate-400 font-display">Playable low-latency synthesizer keyboard with drum looping matrix.</p>
+              </div>
+              <span class="text-[10px] text-pink-400 font-mono font-bold tracking-wider">Channel 03 <i class="fas fa-chevron-right ml-1"></i></span>
+            </div>
+
+            <!-- Card 4: Creative Art Studio -->
+            <div class="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col justify-between h-[180px] hover-glow cursor-pointer tab-btn" data-tab="studio">
+              <div class="space-y-2">
+                <div class="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-400/20 flex items-center justify-center text-violet-400 text-xs"><i class="fas fa-paint-brush"></i></div>
+                <h4 class="text-base font-bold font-orbitron text-white">Creative Art Studio</h4>
+                <p class="text-xs text-slate-400 font-display">HTML5 rasterizer board, customizable neon drawing brushes and avatars.</p>
+              </div>
+              <span class="text-[10px] text-violet-400 font-mono font-bold tracking-wider">Channel 04 <i class="fas fa-chevron-right ml-1"></i></span>
+            </div>
+
+            <!-- Card 5: Tutor Hub -->
+            <div class="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col justify-between h-[180px] hover-glow cursor-pointer tab-btn" data-tab="study">
+              <div class="space-y-2">
+                <div class="w-8 h-8 rounded-lg bg-yellow-500/10 border border-yellow-400/20 flex items-center justify-center text-yellow-400 text-xs"><i class="fas fa-graduation-cap"></i></div>
+                <h4 class="text-base font-bold font-orbitron text-white">Tutor Sandbox</h4>
+                <p class="text-xs text-slate-400 font-display">Kotlin code playground compiler, physics gravity pendulum simulators.</p>
+              </div>
+              <span class="text-[10px] text-yellow-400 font-mono font-bold tracking-wider">Channel 05 <i class="fas fa-chevron-right ml-1"></i></span>
+            </div>
+
+            <!-- Card 6: Saved Answers -->
+            <div class="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col justify-between h-[180px] hover-glow cursor-pointer tab-btn" data-tab="starred">
+              <div class="space-y-2">
+                <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-400/20 flex items-center justify-center text-amber-400 text-xs"><i class="far fa-star"></i></div>
+                <h4 class="text-base font-bold font-orbitron text-white">Saved Answers</h4>
+                <p class="text-xs text-slate-400 font-display">View your securely starred snippets and chat insights repository.</p>
+              </div>
+              <span class="text-[10px] text-amber-400 font-mono font-bold tracking-wider">Channel 06 <i class="fas fa-chevron-right ml-1"></i></span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Deployed Sites Showreel List -->
+        <div class="space-y-4">
+          <h3 class="text-xs font-bold text-slate-500 font-mono tracking-widest uppercase">Recently Hosted Sandbox Builds</h3>
+          <div id="home-showreel-list" class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <!-- Dynamically populated by JS state -->
+          </div>
+        </div>
+
+      </section>
+
+      
+      <!-- TAB 2: AI CHAT PORTAL -->
+      <section id="view-chat" class="view-tab hidden grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-170px)] min-h-[500px]">
+        
+        <!-- Thread Sidebar (Desktop) -->
+        <aside class="lg:col-span-1 glass-panel rounded-2xl border border-white/5 p-4 flex flex-col justify-between h-full bg-[#0a0b12]/60 backdrop-blur-lg">
+          <div class="space-y-4 overflow-y-auto flex-1">
+            <button id="new-chat-btn" class="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-dashed border-white/20 text-xs font-bold text-white uppercase tracking-wider flex items-center justify-center gap-2 hover-glow transition-all">
+              <i class="fas fa-plus"></i> New Chat Node
+            </button>
+            
+            <div class="space-y-2">
+              <span class="text-[9px] font-bold text-slate-500 font-mono tracking-wider uppercase block">Conversational History</span>
+              <div id="chat-threads-list" class="space-y-2">
+                <!-- Dynamically populated thread indicators -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Vibe Selector in Sidebar bottom -->
+          <div class="border-t border-white/5 pt-4 mt-4 space-y-2">
+            <span class="text-[9px] font-bold text-slate-500 font-mono tracking-wider uppercase block">Select AI Persona Link</span>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button class="vibe-pill py-1.5 rounded-lg text-[10px] font-bold tracking-tight border border-transparent select-none flex items-center justify-center gap-1 transition-all" data-vibe="classic">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span> Classic
+              </button>
+              <button class="vibe-pill py-1.5 rounded-lg text-[10px] font-bold tracking-tight border border-transparent select-none flex items-center justify-center gap-1 transition-all" data-vibe="creative">
+                <span class="w-1.5 h-1.5 rounded-full bg-pink-500"></span> Creative
+              </button>
+              <button class="vibe-pill py-1.5 rounded-lg text-[10px] font-bold tracking-tight border border-transparent select-none flex items-center justify-center gap-1 transition-all" data-vibe="developer">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Developer
+              </button>
+              <button class="vibe-pill py-1.5 rounded-lg text-[10px] font-bold tracking-tight border border-transparent select-none flex items-center justify-center gap-1 transition-all" data-vibe="zen">
+                <span class="w-1.5 h-1.5 rounded-full bg-yellow-400"></span> Zen
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main Dialogue chat viewport -->
+        <div class="lg:col-span-3 glass-panel rounded-2xl border border-white/5 flex flex-col justify-between h-full bg-[#0a0b12]/30 relative overflow-hidden">
+          
+          <!-- Chat header bar info -->
+          <div class="p-3 bg-white/5 border-b border-white/5 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-[var(--active-glow)]/80 inline-block"></span>
+              <span class="text-xs font-bold font-orbitron tracking-wide text-white uppercase">Active dialogue tunnel</span>
+            </div>
+
+            <!-- Voice Call Initiation Trigger -->
+            <button id="start-voice-btn" class="px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-400/30 hover:border-cyan-400 hover:bg-cyan-500/20 text-xs font-bold text-cyan-400 transition-all flex items-center gap-1.5 hover-glow">
+              <i class="fas fa-phone-volume"></i> Voice Call
+            </button>
+          </div>
+
+          <!-- Message feed wrapper scroll -->
+          <div id="chat-messages-container" class="flex-1 p-4 md:p-6 overflow-y-auto space-y-4">
+            <!-- Messages blocks populated by app.js -->
+          </div>
+
+          <!-- Message entry bottom bar -->
+          <div class="p-4 border-t border-white/5 bg-black/20">
+            <!-- Thinking spinner loader overlay -->
+            <div id="chat-thinking-indicator" class="hidden flex items-center gap-2 text-xs font-mono text-slate-500 pb-3 pl-1 select-none">
+              <div class="flex items-center gap-0.5">
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+                <span class="wave-bar"></span>
+              </div>
+              <span>Wandjy assistant node compiling response...</span>
+            </div>
+
+            <div class="flex gap-2">
+              <textarea id="chat-text-input" class="w-full bg-[#0e101b] border border-white/10 focus:border-[var(--active-glow)] focus:outline-none rounded-xl p-3 text-sm text-slate-200 placeholder:text-slate-500 resize-none h-[44px]" placeholder="Type your prompt inside the node (Enter to send, Shift+Enter for newline)"></textarea>
+              <button id="chat-send-btn" class="px-4 rounded-xl bg-white/5 border border-white/10 hover:border-[var(--active-glow)] text-slate-300 hover:text-white flex items-center justify-center transition-all">
+                <i class="fas fa-paper-plane text-xs"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+
+      <!-- TAB 3: EDGE WEB PAGE BUILDER -->
+      <section id="view-web" class="view-tab hidden grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-170px)] min-h-[500px]">
+        
+        <!-- Editor Left Split Column -->
+        <div class="glass-panel rounded-2xl border border-white/5 p-4 flex flex-col justify-between h-full bg-[#0a0b12]/50">
+          <div class="space-y-4 flex-1 flex flex-col">
+            
+            <div class="flex items-center justify-between border-b border-white/5 pb-2">
+              <h3 class="text-xs font-bold text-slate-400 font-orbitron">Sandbox HTML/CSS/JS Source</h3>
+              <div class="flex items-center gap-1.5">
+                <button class="template-btn px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-[10px] font-mono text-slate-300" data-template="cyber">Cyberpunk</button>
+                <button class="template-btn px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-[10px] font-mono text-slate-300" data-template="glass">Glassmorphic</button>
+                <button class="template-btn px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-[10px] font-mono text-slate-300" data-template="retro">Terminal</button>
+              </div>
+            </div>
+
+            <!-- Page Title Input -->
+            <div class="flex gap-2 items-center bg-[#090a12] px-3 py-1.5 rounded-xl border border-white/5">
+              <span class="text-[10px] font-mono text-slate-500">PROJECT TITLE:</span>
+              <input type="text" id="builder-title" class="bg-transparent text-slate-200 text-xs font-bold focus:outline-none w-full" value="Cyberpunk Sandbox Portfolio">
+            </div>
+
+            <!-- HTML Source editor textarea -->
+            <textarea id="builder-html" class="code-textarea flex-1 w-full rounded-xl p-4 font-mono text-xs focus:outline-none" placeholder="<!-- Enter HTML / CSS Layout Content here -->"><!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #080914; color: #cbd5e1; font-family: sans-serif; }
+  </style>
+</head>
+<body class="p-8 text-center flex flex-col items-center justify-center min-h-screen">
+  <div class="p-8 rounded-2xl bg-[#111322] border border-cyan-400/30 max-w-sm">
+    <h1 class="text-2xl font-bold text-white mb-2">Hello World!</h1>
+    <p class="text-xs text-slate-400 mb-6">Wandjy Sandbox Compiler ready.</p>
+    <button onclick="alert('Uplink synchronized!')" class="px-5 py-2 rounded-lg bg-cyan-400 text-black font-bold text-xs hover:scale-105 transition-transform">Synchronize</button>
+  </div>
+</body>
+</html></textarea>
+          </div>
+
+          <!-- Bottom controls bar -->
+          <div class="flex items-center justify-end gap-3 border-t border-white/5 pt-4 mt-4">
+            <span class="text-[10px] text-slate-500 font-mono">EDGE COMPILER ARMED</span>
+            <button id="builder-publish-btn" class="px-5 py-2 rounded-xl bg-emerald-500/10 border border-emerald-400/30 hover:border-emerald-400 hover:bg-emerald-500/20 text-emerald-400 font-bold text-xs uppercase tracking-wider transition-all hover-glow">
+              Deploy Sandbox Build
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Preview Sandbox Right Column -->
+        <div class="glass-panel rounded-2xl border border-white/5 p-4 flex flex-col h-full bg-[#0a0b12]/20">
+          <div class="flex items-center justify-between border-b border-white/5 pb-2 mb-3">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <h3 class="text-xs font-bold text-slate-400 font-orbitron">Interactive Edge Sandbox Sandbox Preview</h3>
+            </div>
+            <span class="text-[9px] font-mono bg-white/5 px-2 py-0.5 rounded text-slate-500">SANDBOX CONSTRAINED</span>
+          </div>
+
+          <!-- Web Sandbox Iframe viewport -->
+          <div class="flex-1 rounded-xl bg-[#07080e] overflow-hidden border border-white/5 shadow-inner">
+            <iframe id="builder-iframe-preview" class="w-full h-full bg-white"></iframe>
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- TAB 4: BEATS & MUSIC SYNTHESIZER STUDIO -->
+      <section id="view-beats" class="view-tab hidden space-y-6">
+        
+        <!-- Synthesizer Layout Shell -->
+        <div class="glass-panel rounded-2xl border border-white/5 p-6 space-y-6 bg-[#0a0b12]/50 backdrop-blur-md">
+          
+          <div class="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-white/5 pb-4">
+            <div class="space-y-1">
+              <h3 class="text-lg font-bold font-orbitron text-white">LOW-LATENCY CYBER SYNTHESIZER</h3>
+              <p class="text-xs text-slate-400 font-display">Play musical notes live. Powered directly by the native Web Audio API oscillators.</p>
+            </div>
+            
+            <!-- Synth config dropdown knobs -->
+            <div class="flex flex-wrap items-center gap-3">
+              <div class="flex items-center gap-2 bg-[#090a12] px-3 py-1.5 rounded-xl border border-white/5">
+                <span class="text-[9px] font-mono text-slate-500 uppercase">Oscillator Waveform:</span>
+                <select id="synth-waveform" class="bg-transparent text-slate-300 text-xs font-bold focus:outline-none">
+                  <option value="sine" class="bg-[#10121e]">Sine</option>
+                  <option value="square" class="bg-[#10121e]">Square</option>
+                  <option value="triangle" class="bg-[#10121e]" selected>Triangle</option>
+                  <option value="sawtooth" class="bg-[#10121e]">Sawtooth</option>
+                </select>
+              </div>
+
+              <div class="flex items-center gap-2 bg-[#090a12] px-3 py-1.5 rounded-xl border border-white/5">
+                <span class="text-[9px] font-mono text-slate-500 uppercase">Lowpass Filter cutoff:</span>
+                <input type="range" id="synth-filter" min="100" max="4000" value="1200" class="w-[80px] h-1 accent-[var(--active-glow)] bg-slate-700 rounded-lg cursor-pointer">
+              </div>
+
+              <div class="flex items-center gap-2 bg-[#090a12] px-3 py-1.5 rounded-xl border border-white/5">
+                <span class="text-[9px] font-mono text-slate-500 uppercase">Gain Master volume:</span>
+                <input type="range" id="synth-volume" min="0.0" max="1.0" step="0.05" value="0.4" class="w-[60px] h-1 accent-[var(--active-glow)] bg-slate-700 rounded-lg cursor-pointer">
+              </div>
+            </div>
+          </div>
+
+          <!-- Playable Piano Keyboard -->
+          <div class="flex justify-center p-2 bg-black/20 rounded-2xl border border-white/5 overflow-x-auto">
+            <div class="inline-flex gap-1 py-4 px-2">
+              <button class="synth-key w-10 md:w-14 h-36 bg-white hover:bg-slate-200 text-black font-bold text-[10px] flex items-end justify-center pb-2 rounded-b-lg border-t-4 border-cyan-400" data-freq="261.63">C4</button>
+              <button class="synth-key w-10 md:w-14 h-36 bg-white hover:bg-slate-200 text-black font-bold text-[10px] flex items-end justify-center pb-2 rounded-b-lg border-t-4 border-cyan-400" data-freq="293.66">D4</button>
+              <button class="synth-key w-10 md:w-14 h-36 bg-white hover:bg-slate-200 text-black font-bold text-[10px] flex items-end justify-center pb-2 rounded-b-lg border-t-4 border-cyan-400" data-freq="329.63">E4</button>
+              <button class="synth-key w-10 md:w-14 h-36 bg-white hover:bg-slate-200 text-black font-bold text-[10px] flex items-end justify-center pb-2 rounded-b-lg border-t-4 border-cyan-400" data-freq="349.23">F4</button>
+              <button class="synth-key w-10 md:w-14 h-36 bg-white hover:bg-slate-200 text-black font-bold text-[10px] flex items-end justify-center pb-2 rounded-b-lg border-t-4 border-cyan-400" data-freq="392.00">G4</button>
+              <button class="synth-key w-10 md:w-14 h-36 bg-white hover:bg-slate-200 text-black font-bold text-[10px] flex items-end justify-center pb-2 rounded-b-lg border-t-4 border-cyan-400" data-freq="440.00">A4</button>
+              <button class="synth-key w-10 md:w-14 h-36 bg-white hover:bg-slate-200 text-black font-bold text-[10px] flex items-end justify-center pb-2 rounded-b-lg border-t-4 border-cyan-400" data-freq="493.88">B4</button>
+              <button class="synth-key w-10 md:w-14 h-36 bg-white hover:bg-slate-200 text-black font-bold text-[10px] flex items-end justify-center pb-2 rounded-b-lg border-t-4 border-cyan-400" data-freq="523.25">C5</button>
+            </div>
+          </div>
+
+          <!-- Grid Drum Sequencer beats -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4 border-t border-white/5">
+            
+            <div class="lg:col-span-2 space-y-4">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-bold text-slate-400 font-mono tracking-widest uppercase">Grid Step Drum Sequencer Matrix (120 BPM)</h4>
+                <button id="beats-loop-play-btn" class="px-4 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 font-bold text-xs uppercase tracking-wide transition-all flex items-center gap-1.5">
+                  <i class="fas fa-play"></i> Play Beat Loop
+                </button>
+              </div>
+
+              <!-- Loop matrix grid -->
+              <div class="space-y-2 bg-[#090a12]/50 p-4 rounded-xl border border-white/5">
+                
+                <!-- Beat columns indicator lights -->
+                <div class="flex items-center gap-2">
+                  <span class="w-[90px] text-[10px] text-slate-500 font-mono">TRACKER:</span>
+                  <div class="flex-1 grid grid-cols-8 gap-2">
+                    <div class="beat-pad-indicator w-full h-1 bg-cyan-400 rounded invisible"></div>
+                    <div class="beat-pad-indicator w-full h-1 bg-cyan-400 rounded invisible"></div>
+                    <div class="beat-pad-indicator w-full h-1 bg-cyan-400 rounded invisible"></div>
+                    <div class="beat-pad-indicator w-full h-1 bg-cyan-400 rounded invisible"></div>
+                    <div class="beat-pad-indicator w-full h-1 bg-cyan-400 rounded invisible"></div>
+                    <div class="beat-pad-indicator w-full h-1 bg-cyan-400 rounded invisible"></div>
+                    <div class="beat-pad-indicator w-full h-1 bg-cyan-400 rounded invisible"></div>
+                    <div class="beat-pad-indicator w-full h-1 bg-cyan-400 rounded invisible"></div>
+                  </div>
+                </div>
+
+                <!-- Channel 1: Bass Kick -->
+                <div class="flex items-center gap-2">
+                  <span class="w-[90px] text-[10px] text-slate-400 font-mono font-bold">808 BASS KICK</span>
+                  <div class="flex-1 grid grid-cols-8 gap-2">
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="bass" data-col="0"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="bass" data-col="1"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="bass" data-col="2"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="bass" data-col="3"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="bass" data-col="4"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="bass" data-col="5"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="bass" data-col="6"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="bass" data-col="7"></button>
+                  </div>
+                </div>
+
+                <!-- Channel 2: Snare Snap -->
+                <div class="flex items-center gap-2">
+                  <span class="w-[90px] text-[10px] text-slate-400 font-mono font-bold">SNARE DRUM</span>
+                  <div class="flex-1 grid grid-cols-8 gap-2">
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="snare" data-col="0"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="snare" data-col="1"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="snare" data-col="2"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="snare" data-col="3"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="snare" data-col="4"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="snare" data-col="5"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="snare" data-col="6"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="snare" data-col="7"></button>
+                  </div>
+                </div>
+
+                <!-- Channel 3: Hihat Tick -->
+                <div class="flex items-center gap-2">
+                  <span class="w-[90px] text-[10px] text-slate-400 font-mono font-bold">HI-HAT CYMBAL</span>
+                  <div class="flex-1 grid grid-cols-8 gap-2">
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="hat" data-col="0"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="hat" data-col="1"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="hat" data-col="2"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="hat" data-col="3"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="hat" data-col="4"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="hat" data-col="5"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="hat" data-col="6"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="hat" data-col="7"></button>
+                  </div>
+                </div>
+
+                <!-- Channel 4: Sequencer Synthesizer -->
+                <div class="flex items-center gap-2">
+                  <span class="w-[90px] text-[10px] text-slate-400 font-mono font-bold">CYBER SEQUENCE</span>
+                  <div class="flex-1 grid grid-cols-8 gap-2">
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="seq" data-col="0"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="seq" data-col="1"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="seq" data-col="2"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="seq" data-col="3"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="seq" data-col="4"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="seq" data-col="5"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="seq" data-col="6"></button>
+                    <button class="beat-pad h-8 rounded bg-[#141624] border border-white/5 transition-colors" data-row="seq" data-col="7"></button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Frequency Bars Canvas Visualizer -->
+            <div class="lg:col-span-1 space-y-4">
+              <h4 class="text-xs font-bold text-slate-400 font-mono tracking-widest uppercase">AUDIO WAVE FREQUENCY SPECTRUM</h4>
+              <div class="glass-panel p-4 rounded-xl border border-white/5 bg-black/40 h-[178px] flex items-center justify-center relative overflow-hidden">
+                <canvas id="canvas-beats-freq" class="w-full h-full"></canvas>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+
+      <!-- TAB 5: CREATIVE PHOTOGRAPHY AND ART CANVAS -->
+      <section id="view-studio" class="view-tab hidden grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-170px)] min-h-[500px]">
+        
+        <!-- Brush settings control column -->
+        <aside class="lg:col-span-1 glass-panel rounded-2xl border border-white/5 p-4 space-y-4 bg-[#0a0b12]/50">
+          <div class="border-b border-white/5 pb-2">
+            <h3 class="text-sm font-bold font-orbitron text-white">Art board Brushes</h3>
+          </div>
+
+          <!-- Color palette picker slider -->
+          <div class="space-y-1">
+            <label class="text-[10px] text-slate-500 font-mono tracking-wider uppercase">Brush Stroke Color</label>
+            <div class="flex gap-2">
+              <input type="color" id="art-brush-color" class="w-10 h-10 bg-transparent cursor-pointer rounded overflow-hidden" value="#00f0ff">
+              <div class="flex-1 grid grid-cols-5 gap-1">
+                <button class="w-full h-8 rounded bg-[#00f0ff]" onclick="document.getElementById('art-brush-color').value='#00f0ff'; document.getElementById('art-brush-color').dispatchEvent(new Event('input'))"></button>
+                <button class="w-full h-8 rounded bg-[#ff007f]" onclick="document.getElementById('art-brush-color').value='#ff007f'; document.getElementById('art-brush-color').dispatchEvent(new Event('input'))"></button>
+                <button class="w-full h-8 rounded bg-[#39ff14]" onclick="document.getElementById('art-brush-color').value='#39ff14'; document.getElementById('art-brush-color').dispatchEvent(new Event('input'))"></button>
+                <button class="w-full h-8 rounded bg-[#ffd700]" onclick="document.getElementById('art-brush-color').value='#ffd700'; document.getElementById('art-brush-color').dispatchEvent(new Event('input'))"></button>
+                <button class="w-full h-8 rounded bg-[#ffffff]" onclick="document.getElementById('art-brush-color').value='#ffffff'; document.getElementById('art-brush-color').dispatchEvent(new Event('input'))"></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Brush size slider -->
+          <div class="space-y-1">
+            <label class="text-[10px] text-slate-500 font-mono tracking-wider uppercase">Brush Stroke Radius (px)</label>
+            <input type="range" id="art-brush-size" min="1" max="40" value="5" class="w-full accent-[var(--active-glow)] bg-slate-700 h-1.5 rounded-lg cursor-pointer">
+          </div>
+
+          <!-- Glow brush drawing option checkbox -->
+          <div class="flex items-center justify-between py-2 border-y border-white/5">
+            <span class="text-xs font-mono text-slate-400">NEON GLOW BRUSH MODE</span>
+            <input type="checkbox" id="art-glow-toggle" class="w-4 h-4 accent-[var(--active-glow)] cursor-pointer">
+          </div>
+
+          <!-- Action operations buttons -->
+          <div class="space-y-2 pt-2">
+            <button id="art-clear-btn" class="w-full py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 font-bold text-xs uppercase transition-all">
+              <i class="fas fa-trash-alt mr-2"></i> Clear Art Board
+            </button>
+            <button id="art-undo-btn" class="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-bold text-xs uppercase transition-all">
+              <i class="fas fa-undo mr-2"></i> Undo Stroke
+            </button>
+          </div>
+
+          <!-- Procedural avatar creation section -->
+          <div class="border-t border-white/5 pt-4 space-y-3">
+            <h4 class="text-xs font-bold text-slate-400 font-orbitron uppercase">COMPILER PROFILE GENERATION</h4>
+            <p class="text-[11px] text-slate-400 font-display">Let the companion render procedural retro vector cyberpunk avatar elements dynamically on the art canvas.</p>
+            <button id="art-generate-avatar-btn" class="w-full py-2.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-400/30 text-indigo-400 font-bold text-xs uppercase tracking-wider transition-all hover-glow">
+              <i class="fas fa-robot mr-2"></i> Compile Avatar
+            </button>
+          </div>
+
+        </aside>
+
+        <!-- Sketchpad Drawing Board Column -->
+        <div class="lg:col-span-2 glass-panel rounded-2xl border border-white/5 p-4 flex flex-col h-full bg-[#0a0b12]/20">
+          <div class="flex items-center justify-between border-b border-white/5 pb-2 mb-3">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+              <h3 class="text-xs font-bold text-slate-400 font-orbitron">Digital Sketchpad & Canvas</h3>
+            </div>
+            
+            <button id="art-download-btn" class="px-3 py-1 rounded bg-white/5 hover:bg-white/10 text-xs font-bold text-white transition-all flex items-center gap-1.5">
+              <i class="fas fa-download text-[10px]"></i> Export PNG
+            </button>
+          </div>
+
+          <!-- HTML5 sketch canvas element -->
+          <div class="flex-1 rounded-xl bg-[#0a0a12] overflow-hidden border border-white/5 relative">
+            <canvas id="canvas-art-board" class="w-full h-full cursor-crosshair"></canvas>
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- TAB 6: AI HOMEWORK TUTOR HUB -->
+      <section id="view-study" class="view-tab hidden grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-170px)] min-h-[500px]">
+        
+        <!-- Left academic categories column -->
+        <aside class="lg:col-span-1 glass-panel rounded-2xl border border-white/5 p-4 space-y-4 bg-[#0a0b12]/50 overflow-y-auto">
+          <div class="border-b border-white/5 pb-2">
+            <h3 class="text-sm font-bold font-orbitron text-white">Tutor Sandbox Workspace</h3>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[9px] text-slate-500 font-mono tracking-wider uppercase block">Preloaded Kotlin Tutorials</label>
+            <div class="grid grid-cols-1 gap-2">
+              <button class="tutor-tutorial-btn p-3 rounded-xl bg-white/5 hover:bg-white/10 text-left border border-white/5 transition-all" data-key="var">
+                <span class="block text-xs font-bold text-white font-orbitron">Kotlin Variables</span>
+                <span class="text-[10px] text-slate-400 font-display">Learn val, var declarations and basic immutable state memory.</span>
+              </button>
+              <button class="tutor-tutorial-btn p-3 rounded-xl bg-white/5 hover:bg-white/10 text-left border border-white/5 transition-all" data-key="loop">
+                <span class="block text-xs font-bold text-white font-orbitron">Kotlin Loops</span>
+                <span class="text-[10px] text-slate-400 font-display">Iterate lists, ranges, arrays, and map sequences.</span>
+              </button>
+              <button class="tutor-tutorial-btn p-3 rounded-xl bg-white/5 hover:bg-white/10 text-left border border-white/5 transition-all" data-key="compose">
+                <span class="block text-xs font-bold text-white font-orbitron">Jetpack Compose UI</span>
+                <span class="text-[10px] text-slate-400 font-display">Render custom composables, modifiers, and column structures.</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Academic Physics Pendulum Simulation panel inside sidebar -->
+          <div class="border-t border-white/5 pt-4 space-y-3">
+            <h4 class="text-xs font-bold text-slate-400 font-orbitron uppercase">PHYSICS SIMULATION PENDULUM NODE</h4>
+            <div class="rounded-xl bg-black/40 border border-white/5 p-2 h-[130px] flex items-center justify-center relative overflow-hidden">
+              <canvas id="canvas-physics" class="w-full h-full"></canvas>
+            </div>
+            <p class="text-[10px] text-slate-500 font-mono text-center">COMPUTES DYNAMIC ACCELERATION VECTOR FORMULAS</p>
+          </div>
+
+        </aside>
+
+        <!-- Right JVM interactive compiler console column -->
+        <div class="lg:col-span-2 glass-panel rounded-2xl border border-white/5 p-4 flex flex-col justify-between h-full bg-[#0a0b12]/20">
+          <div class="flex items-center justify-between border-b border-white/5 pb-2 mb-3">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
+              <h3 class="text-xs font-bold text-slate-400 font-orbitron">Interactive JVM Compiler Playground</h3>
+            </div>
+            <button id="tutor-run-btn" class="px-4 py-1.5 rounded-xl bg-yellow-500/10 border border-yellow-400/30 hover:border-yellow-400 hover:bg-yellow-500/20 text-yellow-400 font-bold text-xs uppercase tracking-wide transition-all hover-glow">
+              <i class="fas fa-play mr-1.5"></i> Execute Code Node
+            </button>
+          </div>
+
+          <div class="space-y-4 flex-1 flex flex-col justify-between">
+            <p id="tutor-tutorial-desc" class="text-xs text-slate-400 font-display">Select a Kotlin/Compose tutorial from the left sidebar panel to load sandbox code blocks.</p>
+            
+            <!-- Code textarea -->
+            <textarea id="tutor-code-editor" class="code-textarea flex-1 w-full rounded-xl p-4 font-mono text-xs focus:outline-none" placeholder="// Preloaded sandbox code editor workspace">// Select a tutorial block from the left panel to begin</textarea>
+            
+            <!-- Sandbox Compiler Terminal -->
+            <div class="h-[120px] bg-black border border-white/5 rounded-xl p-3 flex flex-col justify-between overflow-hidden">
+              <div class="text-[9px] text-slate-500 font-mono">WANDJY EDGE COMPILER OUTPUT CONSOLE</div>
+              <pre id="tutor-terminal-output" class="text-[11px] text-emerald-400 font-mono overflow-y-auto whitespace-pre-wrap flex-1 mt-1">System Terminal Idle. Press "Execute Code Node".</pre>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- TAB 7: ENCRYPTED SAVED ANSWERS REPOSITORY -->
+      <section id="view-starred" class="view-tab hidden space-y-6">
+        
+        <div class="border-b border-white/5 pb-4">
+          <h3 class="text-lg font-bold font-orbitron text-white">ENCRYPTED STARRED INSIGHTS REPOSITORY</h3>
+          <p class="text-xs text-slate-400 font-display">Your saved dialogue modules, academic references, and snippets safely persistent in local browser memory caches.</p>
+        </div>
+
+        <div id="starred-answers-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Starred answers populated by app.js -->
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+
+  <!-- ==========================================
+       MODAL: VOICE CALL OVERLAY COMPONENT
+       ========================================== -->
+  <div id="voice-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
+    <div class="glass-panel w-full max-w-md rounded-3xl border border-white/10 p-6 flex flex-col justify-between items-center h-[460px] relative shadow-2xl overflow-hidden bg-[#0d0e1b]/95">
+      
+      <!-- Modal header -->
+      <div class="flex items-center justify-between w-full border-b border-white/5 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block animate-pulse"></span>
+          <span class="text-xs font-bold font-orbitron text-white tracking-widest">WANDJY DIALOGUE UPLINK</span>
+        </div>
+        <button id="end-voice-btn" class="text-slate-500 hover:text-white transition-all text-xs font-bold">DISCONNECT</button>
+      </div>
+
+      <!-- Live audio rings canvas visualizer wrapper -->
+      <div class="flex-1 w-full flex items-center justify-center relative">
+        <canvas id="canvas-voice-visualizer" class="w-full h-[220px]"></canvas>
+      </div>
+
+      <!-- Holographic Speech Subtitles indicators -->
+      <div class="w-full text-center space-y-2 px-4 mb-4 select-none">
+        <span id="voice-status-text" class="text-[9px] font-bold text-slate-500 font-mono tracking-widest uppercase">SECURE MIC ACTIVE - SPEECH TO TEXT ARMED</span>
+        <p id="voice-subtitles" class="text-xs text-cyan-300 font-display italic line-clamp-2">"Waiting for user input voice streams..."</p>
+      </div>
+
+      <!-- Voice bottom controls knobs -->
+      <div class="flex items-center gap-6 border-t border-white/5 pt-4 w-full justify-center">
+        <!-- Mic Toggle Button -->
+        <button id="voice-mic-btn" class="w-12 h-12 rounded-full flex items-center justify-center transition-all border shadow-lg"></button>
+        
+        <!-- Red Hangup Button -->
+        <button onclick="document.getElementById('end-voice-btn').click()" class="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/40 hover:bg-rose-500/20 text-rose-400 flex items-center justify-center hover-glow transition-all" title="Terminate Uplink">
+          <i class="fas fa-phone-slash text-lg"></i>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ==========================================
+       MODAL Drawer: GEMINI SETTINGS CONTROL CONSOLE
+       ========================================== -->
+  <div id="settings-drawer" class="hidden fixed inset-y-0 right-0 w-full max-w-sm z-50 glass-panel border-l border-white/10 bg-[#0d0e1b]/95 p-6 flex flex-col justify-between shadow-2xl transition-all">
+    
+    <div class="space-y-6 flex-1 overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-white/5 pb-3">
+        <h3 class="text-sm font-bold font-orbitron text-white uppercase"><i class="fas fa-server mr-2 text-[var(--active-glow)]"></i> Edge Router Core</h3>
+        <button id="close-settings-btn" class="text-slate-400 hover:text-white text-xs"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-xs text-slate-400 leading-relaxed font-display">
+          Configure a secure Google Gemini API key to activate production-grade intelligence nodes across dialogue networks. The key is persisted locally in sandbox memory caches and never shared.
+        </p>
+
+        <!-- Key Input Field -->
+        <div class="space-y-1.5">
+          <label class="text-[10px] text-slate-500 font-mono tracking-wider uppercase block">Gemini API Key</label>
+          <div class="flex items-center bg-[#090a12] border border-white/10 rounded-xl px-3 py-2.5">
+            <i class="fas fa-key text-slate-500 text-xs mr-2"></i>
+            <input type="password" id="gemini-key-input" class="bg-transparent text-slate-200 text-xs font-mono w-full focus:outline-none" placeholder="AIzaSy...">
+          </div>
+          <span class="text-[9px] text-slate-500 font-mono block">Acquire keys from Google AI Studio. Falls back to static smart replies if left blank.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drawer save button -->
+    <div class="border-t border-white/5 pt-4 mt-6 flex gap-3">
+      <button id="save-settings-btn" class="flex-1 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white font-bold text-xs uppercase transition-all">
+        Save Router State
+      </button>
+    </div>
+
+  </div>
+
+
+  <!-- ==========================================
+       FOOTER BRAND
+       ========================================== -->
+  <footer class="w-full py-4 text-center border-t border-white/5 font-mono text-[9px] text-slate-600 bg-black/10 select-none">
+    <span>Wandjy Multi-Agent Web Playground © 2026 // SSL Connection Enabled // Deployed on Netlify Static Nodes</span>
+  </footer>
+
+</body>
+</html>

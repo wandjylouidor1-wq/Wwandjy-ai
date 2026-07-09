@@ -56,6 +56,7 @@ import com.example.ui.components.WandjyBeats
 import com.example.ui.components.WandjyStudio
 import com.example.ui.components.WandjyStudy
 import com.example.ui.components.WandjyWeb
+import com.example.ui.components.WandjyWebsiteHome
 import com.example.ui.components.WandjyDeploymentConsole
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -91,8 +92,8 @@ fun WandjyApp(
     val isGenerating by viewModel.isGenerating.collectAsStateWithLifecycle()
     val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
 
-    // Compact layout navigation: "chat", "beats", "studio", "history", "starred"
-    var activeTab by remember { mutableStateOf("chat") }
+    // Website navigation: "home", "chat", "beats", "studio", "study", "web", "starred"
+    var activeTab by remember { mutableStateOf("home") }
     var showVoiceCallOverlay by remember { mutableStateOf(false) }
     var showDeploymentConsole by remember { mutableStateOf(false) }
     
@@ -111,95 +112,7 @@ fun WandjyApp(
     Scaffold(
         modifier = modifier
             .fillMaxSize()
-            .background(CosmicBackground),
-        bottomBar = {
-            if (!isExpandedScreen) {
-                NavigationBar(
-                    containerColor = CosmicSurface,
-                    tonalElevation = 8.dp,
-                    modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars)
-                ) {
-                    NavigationBarItem(
-                        selected = activeTab == "chat",
-                        onClick = { activeTab = "chat" },
-                        icon = { Icon(Icons.Default.ChatBubble, contentDescription = "Active Chat") },
-                        label = { Text("Chat", fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.Bold, fontSize = 10.sp) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = vibeGlowColor,
-                            selectedTextColor = vibeGlowColor,
-                            indicatorColor = CosmicSurfaceVariant,
-                            unselectedIconColor = SlateTextSecondary,
-                            unselectedTextColor = SlateTextSecondary
-                        )
-                    )
-                    NavigationBarItem(
-                        selected = activeTab == "beats",
-                        onClick = { activeTab = "beats" },
-                        icon = { Icon(Icons.Default.MusicNote, contentDescription = "AI Music") },
-                        label = { Text("Beats", fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.Bold, fontSize = 10.sp) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = vibeGlowColor,
-                            selectedTextColor = vibeGlowColor,
-                            indicatorColor = CosmicSurfaceVariant,
-                            unselectedIconColor = SlateTextSecondary,
-                            unselectedTextColor = SlateTextSecondary
-                        )
-                    )
-                    NavigationBarItem(
-                        selected = activeTab == "studio",
-                        onClick = { activeTab = "studio" },
-                        icon = { Icon(Icons.Default.PhotoCamera, contentDescription = "AI Studio") },
-                        label = { Text("Studio", fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.Bold, fontSize = 10.sp) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = vibeGlowColor,
-                            selectedTextColor = vibeGlowColor,
-                            indicatorColor = CosmicSurfaceVariant,
-                            unselectedIconColor = SlateTextSecondary,
-                            unselectedTextColor = SlateTextSecondary
-                        )
-                    )
-                    NavigationBarItem(
-                        selected = activeTab == "study",
-                        onClick = { activeTab = "study" },
-                        icon = { Icon(Icons.Default.School, contentDescription = "AI Tutor") },
-                        label = { Text("Study", fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.Bold, fontSize = 10.sp) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = vibeGlowColor,
-                            selectedTextColor = vibeGlowColor,
-                            indicatorColor = CosmicSurfaceVariant,
-                            unselectedIconColor = SlateTextSecondary,
-                            unselectedTextColor = SlateTextSecondary
-                        )
-                    )
-                    NavigationBarItem(
-                        selected = activeTab == "web",
-                        onClick = { activeTab = "web" },
-                        icon = { Icon(Icons.Default.Code, contentDescription = "AI Web") },
-                        label = { Text("Web", fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.Bold, fontSize = 10.sp) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = vibeGlowColor,
-                            selectedTextColor = vibeGlowColor,
-                            indicatorColor = CosmicSurfaceVariant,
-                            unselectedIconColor = SlateTextSecondary,
-                            unselectedTextColor = SlateTextSecondary
-                        )
-                    )
-                    NavigationBarItem(
-                        selected = activeTab == "starred",
-                        onClick = { activeTab = "starred" },
-                        icon = { Icon(Icons.Default.Star, contentDescription = "Saved Answers") },
-                        label = { Text("Saved", fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.Bold, fontSize = 10.sp) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = vibeGlowColor,
-                            selectedTextColor = vibeGlowColor,
-                            indicatorColor = CosmicSurfaceVariant,
-                            unselectedIconColor = SlateTextSecondary,
-                            unselectedTextColor = SlateTextSecondary
-                        )
-                    )
-                }
-            }
-        }
+            .background(CosmicBackground)
     ) { innerPadding ->
         // Handle Rename dialog
         if (threadToRename != null) {
@@ -244,355 +157,229 @@ fun WandjyApp(
             )
         }
 
-        if (isExpandedScreen) {
-            // Adaptive Landscape layout: Sidebar list-detail layout
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .background(CosmicBackground)
-            ) {
-                // Adaptive NavigationRail on the left of wide screens
-                NavigationRail(
-                    containerColor = CosmicSurface,
-                    contentColor = vibeGlowColor,
-                    header = {
-                        Icon(
-                            imageVector = Icons.Default.AutoAwesome,
-                            contentDescription = "Logo",
-                            tint = vibeGlowColor,
-                            modifier = Modifier.padding(vertical = 12.dp)
-                        )
-                    },
-                    modifier = Modifier.fillMaxHeight()
-                ) {
-                    NavigationRailItem(
-                        selected = activeTab == "chat",
-                        onClick = { activeTab = "chat" },
-                        icon = { Icon(Icons.Default.ChatBubble, contentDescription = "Active Chat") },
-                        label = { Text("Chat", fontWeight = FontWeight.Bold, fontSize = 11.sp) },
-                        colors = NavigationRailItemDefaults.colors(
-                            selectedIconColor = vibeGlowColor,
-                            selectedTextColor = vibeGlowColor,
-                            unselectedIconColor = SlateTextSecondary,
-                            unselectedTextColor = SlateTextSecondary,
-                            indicatorColor = CosmicSurfaceVariant
-                        )
-                    )
-                    NavigationRailItem(
-                        selected = activeTab == "beats",
-                        onClick = { activeTab = "beats" },
-                        icon = { Icon(Icons.Default.MusicNote, contentDescription = "AI Music") },
-                        label = { Text("Beats", fontWeight = FontWeight.Bold, fontSize = 11.sp) },
-                        colors = NavigationRailItemDefaults.colors(
-                            selectedIconColor = vibeGlowColor,
-                            selectedTextColor = vibeGlowColor,
-                            unselectedIconColor = SlateTextSecondary,
-                            unselectedTextColor = SlateTextSecondary,
-                            indicatorColor = CosmicSurfaceVariant
-                        )
-                    )
-                    NavigationRailItem(
-                        selected = activeTab == "studio",
-                        onClick = { activeTab = "studio" },
-                        icon = { Icon(Icons.Default.PhotoCamera, contentDescription = "AI Studio") },
-                        label = { Text("Studio", fontWeight = FontWeight.Bold, fontSize = 11.sp) },
-                        colors = NavigationRailItemDefaults.colors(
-                            selectedIconColor = vibeGlowColor,
-                            selectedTextColor = vibeGlowColor,
-                            unselectedIconColor = SlateTextSecondary,
-                            unselectedTextColor = SlateTextSecondary,
-                            indicatorColor = CosmicSurfaceVariant
-                        )
-                    )
-                    NavigationRailItem(
-                        selected = activeTab == "study",
-                        onClick = { activeTab = "study" },
-                        icon = { Icon(Icons.Default.School, contentDescription = "AI Tutor") },
-                        label = { Text("Study", fontWeight = FontWeight.Bold, fontSize = 11.sp) },
-                        colors = NavigationRailItemDefaults.colors(
-                            selectedIconColor = vibeGlowColor,
-                            selectedTextColor = vibeGlowColor,
-                            unselectedIconColor = SlateTextSecondary,
-                            unselectedTextColor = SlateTextSecondary,
-                            indicatorColor = CosmicSurfaceVariant
-                        )
-                    )
-                    NavigationRailItem(
-                        selected = activeTab == "web",
-                        onClick = { activeTab = "web" },
-                        icon = { Icon(Icons.Default.Code, contentDescription = "AI Web") },
-                        label = { Text("Web", fontWeight = FontWeight.Bold, fontSize = 11.sp) },
-                        colors = NavigationRailItemDefaults.colors(
-                            selectedIconColor = vibeGlowColor,
-                            selectedTextColor = vibeGlowColor,
-                            unselectedIconColor = SlateTextSecondary,
-                            unselectedTextColor = SlateTextSecondary,
-                            indicatorColor = CosmicSurfaceVariant
-                        )
-                    )
-                }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(CosmicBackground)
+        ) {
+            // Web Browser Bar with integrated Web Address input & SSL locks
+            WandjyBrowserBar(
+                activeTab = activeTab,
+                onNavigateToTab = { activeTab = it },
+                glowColor = vibeGlowColor,
+                isThinking = isGenerating,
+                onDeploymentClick = { showDeploymentConsole = true }
+            )
 
-                // Sidebar: History panel + Saved Answers panel (Collapsible tabs or dual row)
-                Column(
-                    modifier = Modifier
-                        .width(320.dp)
-                        .fillMaxHeight()
-                        .background(CosmicSurface)
-                        .drawBehind {
-                            // Subtle divider line
-                            drawLine(
-                                color = CosmicSurfaceVariant,
-                                start = Offset(size.width, 0f),
-                                end = Offset(size.width, size.height),
-                                strokeWidth = 2f
-                            )
-                        }
-                ) {
-                    WandjyHeader(
-                        glowColor = vibeGlowColor,
-                        isThinking = isGenerating,
-                        onDeploymentClick = { showDeploymentConsole = true }
-                    )
-                    
-                    Text(
-                        text = "Conversations",
-                        color = Color.White,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                    )
-
-                    Button(
-                        onClick = {
-                            viewModel.createNewChat()
-                            activeTab = "chat"
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = vibeGlowColor.copy(alpha = 0.15f)),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .border(1.dp, vibeGlowColor.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
-                            .testTag("new_chat_button"),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Icon(Icons.Default.Add, contentDescription = "New Chat", tint = vibeGlowColor)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Start New Wandjy Chat", color = Color.White, fontWeight = FontWeight.Bold)
-                    }
-
-                    // Tabs inside sidebar
-                    var sidebarTab by remember { mutableStateOf("threads") }
-                    TabRow(
-                        selectedTabIndex = if (sidebarTab == "threads") 0 else 1,
-                        containerColor = Color.Transparent,
-                        contentColor = vibeGlowColor,
-                        indicator = { tabPositions ->
-                            TabRowDefaults.SecondaryIndicator(
-                                Modifier.tabIndicatorOffset(tabPositions[if (sidebarTab == "threads") 0 else 1]),
-                                color = vibeGlowColor
-                            )
-                        }
-                    ) {
-                        Tab(
-                            selected = sidebarTab == "threads",
-                            onClick = { sidebarTab = "threads" },
-                            text = { Text("Threads", fontWeight = FontWeight.Bold) }
-                        )
-                        Tab(
-                            selected = sidebarTab == "starred",
-                            onClick = { sidebarTab = "starred" },
-                            text = { Text("Saved", fontWeight = FontWeight.Bold) }
+            // Dynamic view loading depending on the website's active URL route
+            Box(modifier = Modifier.weight(1f)) {
+                when (activeTab) {
+                    "home" -> {
+                        WandjyWebsiteHome(
+                            glowColor = vibeGlowColor,
+                            onNavigateToTab = { activeTab = it }
                         )
                     }
-
-                    Box(modifier = Modifier.weight(1f)) {
-                        if (sidebarTab == "threads") {
-                            ThreadListScreen(
-                                threads = allThreads,
-                                activeThreadId = activeThreadId,
-                                onSelectThread = { viewModel.setActiveThread(it) },
-                                onDeleteThread = { viewModel.deleteThread(it) },
-                                onRenameThread = { thread ->
-                                    threadToRename = thread
-                                    renameTitleValue = thread.title
-                                }
-                            )
-                        } else {
-                            StarredMessagesPanel(
-                                starredMessages = starredMessages,
-                                onToggleStar = { id, active -> viewModel.toggleStar(id, active) },
-                                onSelectThread = { threadId ->
-                                    viewModel.setActiveThread(threadId)
-                                }
-                            )
-                        }
-                    }
-                }
-
-                // Chat Viewport
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                ) {
-                    when (activeTab) {
-                        "chat" -> {
-                            ChatViewport(
-                                viewModel = viewModel,
-                                activeMessages = activeMessages,
-                                isGenerating = isGenerating,
-                                errorMessage = errorMessage,
-                                selectedVibe = selectedVibe,
-                                vibeGlowColor = vibeGlowColor,
-                                onVoiceClick = { showVoiceCallOverlay = true }
-                            )
-                        }
-                        "beats" -> {
-                            WandjyBeats(
-                                viewModel = viewModel,
-                                glowColor = vibeGlowColor
-                            )
-                        }
-                        "studio" -> {
-                            WandjyStudio(
-                                viewModel = viewModel,
-                                glowColor = vibeGlowColor
-                            )
-                        }
-                        "study" -> {
-                            WandjyStudy(
-                                viewModel = viewModel,
-                                glowColor = vibeGlowColor
-                            )
-                        }
-                        "web" -> {
-                            WandjyWeb(
-                                viewModel = viewModel,
-                                glowColor = vibeGlowColor
-                            )
-                        }
-                    }
-                }
-            }
-        } else {
-            // Compact Portrait layout
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .background(CosmicBackground)
-            ) {
-                WandjyHeader(
-                    glowColor = vibeGlowColor,
-                    isThinking = isGenerating,
-                    onDeploymentClick = { showDeploymentConsole = true }
-                )
-
-                Box(modifier = Modifier.weight(1f)) {
-                    when (activeTab) {
-                        "chat" -> {
-                            ChatViewport(
-                                viewModel = viewModel,
-                                activeMessages = activeMessages,
-                                isGenerating = isGenerating,
-                                errorMessage = errorMessage,
-                                selectedVibe = selectedVibe,
-                                vibeGlowColor = vibeGlowColor,
-                                onVoiceClick = { showVoiceCallOverlay = true }
-                            )
-                        }
-                        "beats" -> {
-                            WandjyBeats(
-                                viewModel = viewModel,
-                                glowColor = vibeGlowColor
-                            )
-                        }
-                        "studio" -> {
-                            WandjyStudio(
-                                viewModel = viewModel,
-                                glowColor = vibeGlowColor
-                            )
-                        }
-                        "study" -> {
-                            WandjyStudy(
-                                viewModel = viewModel,
-                                glowColor = vibeGlowColor
-                            )
-                        }
-                        "web" -> {
-                            WandjyWeb(
-                                viewModel = viewModel,
-                                glowColor = vibeGlowColor
-                            )
-                        }
-                        "starred" -> {
-                            var savedTab by remember { mutableStateOf("history") } // "history" or "starred"
-                            Column(modifier = Modifier.fillMaxSize()) {
-                                TabRow(
-                                    selectedTabIndex = if (savedTab == "history") 0 else 1,
-                                    containerColor = CosmicSurface,
-                                    contentColor = vibeGlowColor,
+                    "chat" -> {
+                        if (isExpandedScreen) {
+                            Row(modifier = Modifier.fillMaxSize()) {
+                                Column(
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                                        .clip(RoundedCornerShape(12.dp))
-                                ) {
-                                    Tab(
-                                        selected = savedTab == "history",
-                                        onClick = { savedTab = "history" },
-                                        text = { Text("Chat History", fontWeight = FontWeight.Bold, fontSize = 12.sp) }
-                                    )
-                                    Tab(
-                                        selected = savedTab == "starred",
-                                        onClick = { savedTab = "starred" },
-                                        text = { Text("Saved Answers", fontWeight = FontWeight.Bold, fontSize = 12.sp) }
-                                    )
-                                }
-
-                                if (savedTab == "history") {
-                                    Column(modifier = Modifier.fillMaxSize()) {
-                                        Button(
-                                            onClick = {
-                                                viewModel.createNewChat()
-                                                activeTab = "chat"
-                                            },
-                                            colors = ButtonDefaults.buttonColors(containerColor = vibeGlowColor.copy(alpha = 0.15f)),
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                                                .border(1.dp, vibeGlowColor.copy(alpha = 0.4f), RoundedCornerShape(12.dp)),
-                                            shape = RoundedCornerShape(12.dp)
-                                        ) {
-                                            Icon(Icons.Default.Add, contentDescription = "New Chat", tint = vibeGlowColor)
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text("Start New Wandjy Chat", color = Color.White, fontWeight = FontWeight.Bold)
+                                        .width(300.dp)
+                                        .fillMaxHeight()
+                                        .background(CosmicSurface)
+                                        .drawBehind {
+                                            drawLine(
+                                                color = CosmicSurfaceVariant,
+                                                start = Offset(size.width, 0f),
+                                                end = Offset(size.width, size.height),
+                                                strokeWidth = 2f
+                                            )
                                         }
+                                ) {
+                                    Text(
+                                        text = "Conversations",
+                                        color = Color.White,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                    )
 
-                                        ThreadListScreen(
-                                            threads = allThreads,
-                                            activeThreadId = activeThreadId,
-                                            onSelectThread = {
-                                                viewModel.setActiveThread(it)
-                                                activeTab = "chat"
-                                            },
-                                            onDeleteThread = { viewModel.deleteThread(it) },
-                                            onRenameThread = { thread ->
-                                                threadToRename = thread
-                                                renameTitleValue = thread.title
-                                            }
+                                    Button(
+                                        onClick = { viewModel.createNewChat() },
+                                        colors = ButtonDefaults.buttonColors(containerColor = vibeGlowColor.copy(alpha = 0.15f)),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                                            .border(1.dp, vibeGlowColor.copy(alpha = 0.4f), RoundedCornerShape(12.dp)),
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Icon(Icons.Default.Add, contentDescription = "New Chat", tint = vibeGlowColor)
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text("Start New Chat", color = Color.White, fontWeight = FontWeight.Bold)
+                                    }
+
+                                    var sidebarTab by remember { mutableStateOf("threads") }
+                                    TabRow(
+                                        selectedTabIndex = if (sidebarTab == "threads") 0 else 1,
+                                        containerColor = Color.Transparent,
+                                        contentColor = vibeGlowColor,
+                                        indicator = { tabPositions ->
+                                            TabRowDefaults.SecondaryIndicator(
+                                                Modifier.tabIndicatorOffset(tabPositions[if (sidebarTab == "threads") 0 else 1]),
+                                                color = vibeGlowColor
+                                            )
+                                        }
+                                    ) {
+                                        Tab(
+                                            selected = sidebarTab == "threads",
+                                            onClick = { sidebarTab = "threads" },
+                                            text = { Text("Threads", fontWeight = FontWeight.Bold) }
+                                        )
+                                        Tab(
+                                            selected = sidebarTab == "starred",
+                                            onClick = { sidebarTab = "starred" },
+                                            text = { Text("Saved", fontWeight = FontWeight.Bold) }
                                         )
                                     }
-                                } else {
-                                    StarredMessagesPanel(
-                                        starredMessages = starredMessages,
-                                        onToggleStar = { id, active -> viewModel.toggleStar(id, active) },
-                                        onSelectThread = { threadId ->
-                                            viewModel.setActiveThread(threadId)
+
+                                    Box(modifier = Modifier.weight(1f)) {
+                                        if (sidebarTab == "threads") {
+                                            ThreadListScreen(
+                                                threads = allThreads,
+                                                activeThreadId = activeThreadId,
+                                                onSelectThread = { viewModel.setActiveThread(it) },
+                                                onDeleteThread = { viewModel.deleteThread(it) },
+                                                onRenameThread = { thread ->
+                                                    threadToRename = thread
+                                                    renameTitleValue = thread.title
+                                                }
+                                            )
+                                        } else {
+                                            StarredMessagesPanel(
+                                                starredMessages = starredMessages,
+                                                onToggleStar = { id, active -> viewModel.toggleStar(id, active) },
+                                                onSelectThread = { threadId -> viewModel.setActiveThread(threadId) }
+                                            )
+                                        }
+                                    }
+                                }
+
+                                Box(modifier = Modifier.weight(1f)) {
+                                    ChatViewport(
+                                        viewModel = viewModel,
+                                        activeMessages = activeMessages,
+                                        isGenerating = isGenerating,
+                                        errorMessage = errorMessage,
+                                        selectedVibe = selectedVibe,
+                                        vibeGlowColor = vibeGlowColor,
+                                        onVoiceClick = { showVoiceCallOverlay = true }
+                                    )
+                                }
+                            }
+                        } else {
+                            ChatViewport(
+                                viewModel = viewModel,
+                                activeMessages = activeMessages,
+                                isGenerating = isGenerating,
+                                errorMessage = errorMessage,
+                                selectedVibe = selectedVibe,
+                                vibeGlowColor = vibeGlowColor,
+                                onVoiceClick = { showVoiceCallOverlay = true }
+                            )
+                        }
+                    }
+                    "beats" -> {
+                        WandjyBeats(
+                            viewModel = viewModel,
+                            glowColor = vibeGlowColor
+                        )
+                    }
+                    "studio" -> {
+                        WandjyStudio(
+                            viewModel = viewModel,
+                            glowColor = vibeGlowColor
+                        )
+                    }
+                    "study" -> {
+                        WandjyStudy(
+                            viewModel = viewModel,
+                            glowColor = vibeGlowColor
+                        )
+                    }
+                    "web" -> {
+                        WandjyWeb(
+                            viewModel = viewModel,
+                            glowColor = vibeGlowColor
+                        )
+                    }
+                    "starred" -> {
+                        var savedTab by remember { mutableStateOf("history") }
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            TabRow(
+                                selectedTabIndex = if (savedTab == "history") 0 else 1,
+                                containerColor = CosmicSurface,
+                                contentColor = vibeGlowColor,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                            ) {
+                                Tab(
+                                    selected = savedTab == "history",
+                                    onClick = { savedTab = "history" },
+                                    text = { Text("Chat History", fontWeight = FontWeight.Bold, fontSize = 12.sp) }
+                                )
+                                Tab(
+                                    selected = savedTab == "starred",
+                                    onClick = { savedTab = "starred" },
+                                    text = { Text("Saved Answers", fontWeight = FontWeight.Bold, fontSize = 12.sp) }
+                                )
+                            }
+
+                            if (savedTab == "history") {
+                                Column(modifier = Modifier.fillMaxSize()) {
+                                    Button(
+                                        onClick = {
+                                            viewModel.createNewChat()
                                             activeTab = "chat"
+                                        },
+                                        colors = ButtonDefaults.buttonColors(containerColor = vibeGlowColor.copy(alpha = 0.15f)),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                                            .border(1.dp, vibeGlowColor.copy(alpha = 0.4f), RoundedCornerShape(12.dp)),
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Icon(Icons.Default.Add, contentDescription = "New Chat", tint = vibeGlowColor)
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text("Start New Wandjy Chat", color = Color.White, fontWeight = FontWeight.Bold)
+                                    }
+
+                                    ThreadListScreen(
+                                        threads = allThreads,
+                                        activeThreadId = activeThreadId,
+                                        onSelectThread = {
+                                            viewModel.setActiveThread(it)
+                                            activeTab = "chat"
+                                        },
+                                        onDeleteThread = { viewModel.deleteThread(it) },
+                                        onRenameThread = { thread ->
+                                            threadToRename = thread
+                                            renameTitleValue = thread.title
                                         }
                                     )
                                 }
+                            } else {
+                                StarredMessagesPanel(
+                                    starredMessages = starredMessages,
+                                    onToggleStar = { id, active -> viewModel.toggleStar(id, active) },
+                                    onSelectThread = { threadId ->
+                                        viewModel.setActiveThread(threadId)
+                                        activeTab = "chat"
+                                    }
+                                )
                             }
                         }
                     }
@@ -618,7 +405,281 @@ fun WandjyApp(
 }
 
 @Composable
-fun WandjyHeader(glowColor: Color, isThinking: Boolean, onDeploymentClick: () -> Unit) {
+fun WandjyBrowserBar(
+    activeTab: String,
+    onNavigateToTab: (String) -> Unit,
+    glowColor: Color,
+    isThinking: Boolean,
+    onDeploymentClick: () -> Unit
+) {
+    val context = LocalContext.current
+    val infiniteTransition = rememberInfiniteTransition(label = "Pulse")
+    val pulseAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "PulseAlpha"
+    )
+
+    val currentUrl = when (activeTab) {
+        "home" -> "https://www.wandjy.sh/"
+        "chat" -> "https://www.wandjy.sh/chat"
+        "beats" -> "https://www.wandjy.sh/beats"
+        "studio" -> "https://www.wandjy.sh/studio"
+        "study" -> "https://www.wandjy.sh/study"
+        "web" -> "https://www.wandjy.sh/builder"
+        "starred" -> "https://www.wandjy.sh/saved"
+        else -> "https://www.wandjy.sh/"
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(CosmicSurface)
+    ) {
+        // TOP Row: Web Browser Bar Window Header
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Window controls (Red, Yellow, Green dots) - desktop look
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.padding(end = 12.dp)
+            ) {
+                Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color(0xFFFF5F56)))
+                Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color(0xFFFFBD2E)))
+                Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color(0xFF27C93F)))
+            }
+
+            // Browser Nav Buttons: Back, Forward, Refresh
+            IconButton(
+                onClick = { if (activeTab != "home") onNavigateToTab("home") },
+                enabled = activeTab != "home",
+                modifier = Modifier.size(26.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back to Home",
+                    tint = if (activeTab != "home") Color.White else SlateTextSecondary.copy(alpha = 0.5f),
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+
+            IconButton(
+                onClick = { /* Simulated forward */ },
+                enabled = false,
+                modifier = Modifier.size(26.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowForward,
+                    contentDescription = "Forward",
+                    tint = SlateTextSecondary.copy(alpha = 0.3f),
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+
+            IconButton(
+                onClick = { 
+                    Toast.makeText(context, "Reloading secure connection to edge router...", Toast.LENGTH_SHORT).show()
+                },
+                modifier = Modifier.size(26.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Refresh",
+                    tint = Color.White,
+                    modifier = Modifier.size(15.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(6.dp))
+
+            // Centered URL Input Address Bar
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(28.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(CosmicSurfaceVariant)
+                    .border(0.5.dp, glowColor.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
+                    .clickable {
+                        Toast.makeText(context, "Connected to SSL Secured Node: $currentUrl", Toast.LENGTH_SHORT).show()
+                    }
+                    .padding(horizontal = 8.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = "SSL Secure",
+                        tint = GlowGreen,
+                        modifier = Modifier.size(12.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = currentUrl,
+                        color = Color.White,
+                        fontSize = 11.sp,
+                        fontFamily = FontFamily.Monospace,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ContentCopy,
+                        contentDescription = "Copy URL",
+                        tint = SlateTextSecondary,
+                        modifier = Modifier.size(11.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // Deployment Store / Cloud console button
+            IconButton(
+                onClick = onDeploymentClick,
+                modifier = Modifier
+                    .size(28.dp)
+                    .clip(CircleShape)
+                    .background(CosmicSurfaceVariant)
+                    .border(0.5.dp, glowColor.copy(alpha = 0.3f), CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CloudUpload,
+                    contentDescription = "Cloud Console",
+                    tint = glowColor,
+                    modifier = Modifier.size(14.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(6.dp))
+
+            // Secure network pulse dot
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(if (isThinking) glowColor.copy(alpha = pulseAlpha) else GlowGreen)
+                    .border(0.5.dp, if (isThinking) glowColor else GlowGreen.copy(alpha = 0.5f), CircleShape)
+            )
+        }
+
+        // Horizontal Divider below Address Bar
+        HorizontalDivider(color = CosmicSurfaceVariant, thickness = 1.dp)
+
+        // BOTTOM Row: Website Responsive Top Navbar
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Brand Logo
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { onNavigateToTab("home") }
+            ) {
+                Text(
+                    text = "wandjy",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.White,
+                    fontFamily = FontFamily.SansSerif,
+                    letterSpacing = (-1).sp
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(glowColor.copy(alpha = 0.2f))
+                        .border(0.5.dp, glowColor, RoundedCornerShape(4.dp))
+                        .padding(horizontal = 4.dp, vertical = 1.dp)
+                ) {
+                    Text(
+                        text = "AI",
+                        color = glowColor,
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            // Scrollable pills for website tabs
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                contentPadding = PaddingValues(horizontal = 8.dp),
+                modifier = Modifier.weight(1f, fill = false)
+            ) {
+                val menuItems = listOf(
+                    Triple("home", "Home", Icons.Default.Home),
+                    Triple("chat", "Chat Portal", Icons.Default.ChatBubble),
+                    Triple("web", "Web Builder", Icons.Default.Code),
+                    Triple("beats", "Beats Studio", Icons.Default.MusicNote),
+                    Triple("studio", "Art Studio", Icons.Default.PhotoCamera),
+                    Triple("study", "Tutor Hub", Icons.Default.School),
+                    Triple("starred", "Saved", Icons.Default.Star)
+                )
+
+                items(menuItems) { (tabKey, label, icon) ->
+                    val isSelected = activeTab == tabKey
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (isSelected) glowColor.copy(alpha = 0.15f) else Color.Transparent)
+                            .border(0.5.dp, if (isSelected) glowColor else Color.Transparent, RoundedCornerShape(8.dp))
+                            .clickable { onNavigateToTab(tabKey) }
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = null,
+                                tint = if (isSelected) glowColor else SlateTextSecondary,
+                                modifier = Modifier.size(11.dp)
+                            )
+                            Text(
+                                text = label,
+                                color = if (isSelected) Color.White else SlateTextSecondary,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Glowing bottom edge line for the entire browser/website header
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(2.dp)
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(glowColor.copy(alpha = 0.1f), glowColor, glowColor.copy(alpha = 0.1f))
+                    )
+                )
+        )
+    }
+}
+
+@Composable
+fun WandjyHeader(glowColor: Color, isThinking: Boolean, onDeploymentClick: () -> Unit = {}) {
     // Elegant header banner with dynamic neon state indicators
     val infiniteTransition = rememberInfiniteTransition(label = "Pulse")
     val pulseAlpha by infiniteTransition.animateFloat(
